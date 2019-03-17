@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.rafaelfelix.panchallenge.dto.CidadeDTO;
 import com.rafaelfelix.panchallenge.dto.EnderecoDTO;
 import com.rafaelfelix.panchallenge.dto.EstadoDTO;
 
@@ -86,7 +87,7 @@ public class EnderecoResource {
 	private List<EstadoDTO> customSortList(List<EstadoDTO> listToOrder) {
 		List<EstadoDTO> newList = new ArrayList<>();
 		
-		// Ordena a lista em ordem decrescente para obter SP e RJ, nessa ordem
+		// Ordena a lista em ordem descendente para obter SP e RJ, nessa ordem
 		Collections.sort(listToOrder, (list1,list2) -> list2.getNome().compareTo(list1.getNome()));
 		for(EstadoDTO estado : listToOrder) {
 			if(estado.getId() == 33 || estado.getId() == 35) {
@@ -97,6 +98,25 @@ public class EnderecoResource {
 		newList.addAll(listToOrder);
 		
 		return newList;
+	}
+	
+	@GetMapping(value = "/estado/{id}/municipios", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<?> findCitiesByStateId(@PathVariable Integer id) {
+		// URI (URL) parameters
+		Map<String, Integer> uriParams = new HashMap<String, Integer>();
+		uriParams.put("id", id);
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(cidadePublicAPI);
+		
+		List<CidadeDTO> cidades = new ArrayList<>();
+		try {
+			ResponseEntity<List<CidadeDTO>> response = template.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.GET, null, new ParameterizedTypeReference<List<CidadeDTO>>(){});
+			cidades = response.getBody();
+		} catch(HttpServerErrorException ex) {
+			LOGGER.error("Causa: ".concat(ex.getCause().toString()).concat(". Detalhe: ").concat(ex.getMessage()));
+			throw new HttpServerErrorException(HttpStatus.BAD_REQUEST, "Ocorreu um erro ao tentar chamar a API pública");
+		}
+		return ResponseEntity.ok(cidades);
 	}
 
 }

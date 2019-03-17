@@ -3,24 +3,26 @@ package com.rafaelfelix.panchallenge.dto;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class EstadoDTO implements Serializable, Comparable<EstadoDTO> {
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+public class MicroRegiaoDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private Integer id;
-	private String sigla;
 	private String nome;
-	private RegiaoDTO regiao;
 	
-	public EstadoDTO() {
+	@JsonAlias("mesorregiao")
+	private MesoRegiaoDTO mesoRegiao;
+	
+	public MicroRegiaoDTO() {
 		
 	}
 
-	public EstadoDTO(Integer id, String sigla, String nome, RegiaoDTO regiao) {
+	public MicroRegiaoDTO(Integer id, String nome, MesoRegiaoDTO mesoRegiao) {
 		this.id = id;
-		this.sigla = sigla;
 		this.nome = nome;
-		this.regiao = regiao;
+		this.mesoRegiao = mesoRegiao;
 	}
 
 	/**
@@ -38,20 +40,6 @@ public class EstadoDTO implements Serializable, Comparable<EstadoDTO> {
 	}
 
 	/**
-	 * @return the sigla
-	 */
-	public String getSigla() {
-		return sigla;
-	}
-
-	/**
-	 * @param sigla the sigla to set
-	 */
-	public void setSigla(String sigla) {
-		this.sigla = sigla;
-	}
-
-	/**
 	 * @return the nome
 	 */
 	public String getNome() {
@@ -66,17 +54,17 @@ public class EstadoDTO implements Serializable, Comparable<EstadoDTO> {
 	}
 
 	/**
-	 * @return the regiao
+	 * @return the mesoRegiao
 	 */
-	public RegiaoDTO getRegiao() {
-		return regiao;
+	public MesoRegiaoDTO getMesoRegiao() {
+		return mesoRegiao;
 	}
 
 	/**
-	 * @param regiao the regiao to set
+	 * @param mesoRegiao the mesoRegiao to set
 	 */
-	public void setRegiao(RegiaoDTO regiao) {
-		this.regiao = regiao;
+	public void setMesoRegiao(MesoRegiaoDTO mesoRegiao) {
+		this.mesoRegiao = mesoRegiao;
 	}
 
 	/* (non-Javadoc)
@@ -98,17 +86,8 @@ public class EstadoDTO implements Serializable, Comparable<EstadoDTO> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		EstadoDTO other = (EstadoDTO) obj;
+		MicroRegiaoDTO other = (MicroRegiaoDTO) obj;
 		return Objects.equals(id, other.id);
 	}
-
-	/**
-	 * Ordena a lista de Estados em ordem Ascendente
-	 */
-	@Override
-	public int compareTo(EstadoDTO o) {
-		return this.nome.compareToIgnoreCase(o.getNome());
-	}
-	
 
 }
