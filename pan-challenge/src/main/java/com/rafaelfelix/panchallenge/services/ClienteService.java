@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.rafaelfelix.panchallenge.domains.Cidade;
 import com.rafaelfelix.panchallenge.domains.Cliente;
+import com.rafaelfelix.panchallenge.domains.Endereco;
+import com.rafaelfelix.panchallenge.dto.DadosClienteDTO;
 import com.rafaelfelix.panchallenge.repositories.ClienteRepository;
 import com.rafaelfelix.panchallenge.services.exceptions.ObjectNotFoundException;
 
@@ -23,6 +26,7 @@ public class ClienteService {
 				"Objeto não encontrado! Cpf: " + cpf + ", Tipo: " + Cliente.class.getName()));
 	}
 	
+	@Transactional(readOnly = true)
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
@@ -40,14 +44,24 @@ public class ClienteService {
 	}
 	
 	public Cliente update(Cliente cliente) {
-		Cliente newCliente = this.find(cliente.getId());
-		updateData(newCliente, cliente);
-		return repo.saveAndFlush(newCliente);
+		return repo.saveAndFlush(cliente);
 	}
 	
-	private void updateData(Cliente newCliente, Cliente oldCliente) {
-		newCliente.setNome(oldCliente.getNome());
-		newCliente.setEmail(oldCliente.getEmail());
+	public Cliente fromDTO(DadosClienteDTO objDTO) {
+		Cidade cid = new Cidade(objDTO.getCidadeId(), null, null);
+		Cliente cli = this.find(objDTO.getClienteId());
+		
+		for(Endereco endereco : cli.getEnderecos()) {
+			endereco.setLogradouro(objDTO.getLogradouro());
+			endereco.setNumero(objDTO.getNumero());
+			endereco.setComplemeto(objDTO.getComplemeto());
+			endereco.setBairro(objDTO.getBairro());
+			endereco.setCep(objDTO.getCep());
+			endereco.setCidade(cid);
+			
+		}
+		
+		return cli;
 	}
 
 }

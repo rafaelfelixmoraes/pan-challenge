@@ -7,10 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rafaelfelix.panchallenge.domains.Cliente;
+import com.rafaelfelix.panchallenge.dto.DadosClienteDTO;
 import com.rafaelfelix.panchallenge.resources.exception.StandardError;
 import com.rafaelfelix.panchallenge.resources.utils.BR;
 import com.rafaelfelix.panchallenge.services.ClienteService;
@@ -39,18 +42,27 @@ public class ClienteResource {
 	public ResponseEntity<?> findByCpf(@PathVariable String cpf) {
 		if(!BR.isValidCPF(cpf)) {
 			return ResponseEntity.badRequest()
-								 .body(new StandardError(HttpStatus.BAD_REQUEST.value(), "CPF Inválido", new Date()));
+								 .body(new StandardError(HttpStatus.BAD_REQUEST.value(), 
+									   "CPF Inválido", 
+									   new Date()));
 		}
 		Cliente obj = service.findByCpf(cpf);
 		return ResponseEntity.ok(obj);
 	}
 	
-	/*@PutMapping("/{id}")
-	public ResponseEntity<Void> update(@PathVariable Integer id, @Valid @RequestBody EnderecoDTO enderecoDTO){
-		Cliente cliente = service.fromDTO(clienteDTO);
-		cliente.setId(id);
+	/**
+	 * Método que atualiza os dados do cliente conforme objeto enviado
+	 * 
+	 * @param id O ID do cliente no banco de dados
+	 * @param dadosCliente O objeto com os dados a serem atualizados
+	 * @return {@link HttpStatus}: <b><i>NO CONTENT(204)</i></b> caso a atualização ocorra com sucesso
+	 */
+	@PutMapping("/{id}")
+	public ResponseEntity<Void> update(@PathVariable Integer id, @RequestBody DadosClienteDTO dadosCliente){
+		dadosCliente.setClienteId(id);
+		Cliente cliente = service.fromDTO(dadosCliente);
 		cliente = service.update(cliente);
 		return ResponseEntity.noContent().build();
-	}*/
+	}
 
 }

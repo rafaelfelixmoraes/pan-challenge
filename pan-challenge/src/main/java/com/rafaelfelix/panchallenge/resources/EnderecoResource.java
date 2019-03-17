@@ -43,7 +43,12 @@ public class EnderecoResource {
 	private static final String estadoPublicAPI = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/";
 	private static final String cidadePublicAPI = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/{id}/municipios";
 	
-
+	/**
+	 * Método que realiza a pesquisa de um endereço através do CEP
+	 * 
+	 * @param cep O Cep do endereço a ser pesquisado
+	 * @return {@link HttpStatus}: <b><i>OK(200)</i></b> com o objeto {@link EnderecoDTO}
+	 */
 	@GetMapping(value = "/{cep}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<?> findAddressByCep(@PathVariable String cep) {
 		// URI (URL) parameters
@@ -63,6 +68,11 @@ public class EnderecoResource {
 		return ResponseEntity.ok(endereco);
 	}
 	
+	/**
+	 * Método que retorna todos os estados ordenadosde forma Ascendente, com SP e RJ no topo
+	 * 
+	 * @return {@link HttpStatus}: <b><i>OK(200)</i></b> com uma lista contendo objetos {@link EstadoDTO}
+	 */
 	@GetMapping(value = "/estados", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<?> listAllStates() {
 		List<EstadoDTO> estadoList = new ArrayList<>();
@@ -76,6 +86,31 @@ public class EnderecoResource {
 		}
 		sortedList = customSortList(estadoList);
 		return ResponseEntity.ok(sortedList);
+	}
+	
+	/**
+	 * Método que retorna os municipios de um determinado Estado
+	 * 
+	 * @param id O ID do estado
+	 * @return {@link HttpStatus}: <b><i>OK(200)</i></b> com uma lista contendo objetos {@link CidadeDTO}
+	 */
+	@GetMapping(value = "/estado/{id}/municipios", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<?> findCitiesByStateId(@PathVariable Integer id) {
+		// URI (URL) parameters
+		Map<String, Integer> uriParams = new HashMap<String, Integer>();
+		uriParams.put("id", id);
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(cidadePublicAPI);
+		
+		List<CidadeDTO> cidades = new ArrayList<>();
+		try {
+			ResponseEntity<List<CidadeDTO>> response = template.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.GET, null, new ParameterizedTypeReference<List<CidadeDTO>>(){});
+			cidades = response.getBody();
+		} catch(HttpServerErrorException ex) {
+			LOGGER.error("Causa: ".concat(ex.getCause().toString()).concat(". Detalhe: ").concat(ex.getMessage()));
+			throw new HttpServerErrorException(HttpStatus.BAD_REQUEST, "Ocorreu um erro ao tentar chamar a API pública");
+		}
+		return ResponseEntity.ok(cidades);
 	}
 	
 	/**
@@ -98,25 +133,6 @@ public class EnderecoResource {
 		newList.addAll(listToOrder);
 		
 		return newList;
-	}
-	
-	@GetMapping(value = "/estado/{id}/municipios", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<?> findCitiesByStateId(@PathVariable Integer id) {
-		// URI (URL) parameters
-		Map<String, Integer> uriParams = new HashMap<String, Integer>();
-		uriParams.put("id", id);
-
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(cidadePublicAPI);
-		
-		List<CidadeDTO> cidades = new ArrayList<>();
-		try {
-			ResponseEntity<List<CidadeDTO>> response = template.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.GET, null, new ParameterizedTypeReference<List<CidadeDTO>>(){});
-			cidades = response.getBody();
-		} catch(HttpServerErrorException ex) {
-			LOGGER.error("Causa: ".concat(ex.getCause().toString()).concat(". Detalhe: ").concat(ex.getMessage()));
-			throw new HttpServerErrorException(HttpStatus.BAD_REQUEST, "Ocorreu um erro ao tentar chamar a API pública");
-		}
-		return ResponseEntity.ok(cidades);
 	}
 
 }
