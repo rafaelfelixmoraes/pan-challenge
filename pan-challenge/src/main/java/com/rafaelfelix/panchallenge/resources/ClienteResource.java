@@ -16,7 +16,7 @@ import com.rafaelfelix.panchallenge.resources.utils.BR;
 import com.rafaelfelix.panchallenge.services.ClienteService;
 
 /**
- * Classe de controle dos serviços
+ * Classe de controle dos serviços relacionados a Cliente
  * 
  * @author rafaelfelixmoraes
  *
