@@ -38,8 +38,6 @@ http://localhost:8080/clientes/{id}
 #### Payload de entrada
 ```
 {
-  "telefone1": "",
-  "telefone2": "",
   "logradouro": "",
   "numero": "",
   "complemeto": "",
