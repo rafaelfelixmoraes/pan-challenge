@@ -39,7 +39,7 @@ public class ClienteResource {
 	public ResponseEntity<?> findByCpf(@PathVariable String cpf) {
 		if(!BR.isValidCPF(cpf)) {
 			return ResponseEntity.badRequest()
-								 .body(new StandardError(HttpStatus.NOT_FOUND.value(), "CPF Inválido", new Date()));
+								 .body(new StandardError(HttpStatus.BAD_REQUEST.value(), "CPF Inválido", new Date()));
 		}
 		Cliente obj = service.findByCpf(cpf);
 		return ResponseEntity.ok(obj);
